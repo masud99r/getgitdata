@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class GitTest {
     public static void main(String args[]) throws IOException{
         GitTest gt = new GitTest();
-        System.out.println("Start collecting data");
+        System.out.print("Start collecting data");
         gt.getdata();
         System.out.println("End collecting data");
     }
