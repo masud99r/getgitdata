@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 
 /**
  *
@@ -18,10 +20,11 @@ import java.util.logging.Logger;
  */
 public class GitTest {
     public static void main(String args[]) throws IOException{
-        GitTest gt = new GitTest();
-        System.out.print("Start collecting data");
-        gt.getdata();
-        System.out.println("End collecting data");
+        
+        TestJGit tjg = new TestJGit();
+        tjg.init();
+        tjg.getCommand();
+        
     }
     public void getdata(){
         try {
