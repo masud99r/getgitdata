@@ -28,13 +28,13 @@ public class JGitDiff
     File gitWorkDir = new File("C:/Users/Masud/Documents/GitHub/tomcat");
     Git git = Git.open(gitWorkDir);
  
-    String newHash = "081d5e1a080808efbc6a576dd668df0d1bc91f08";
+    String newHash = "278a36a";
     String oldHash = "1b46e37b92705159ddc22fd8a28ee1d2b7499072";
     
     //ObjectId headId = git.getRepository().resolve("HEAD^{tree}");
-    ObjectId headId = git.getRepository().resolve(newHash + "^{tree}");
-    ObjectId oldId = git.getRepository().resolve(oldHash + "^{tree}");
- 
+   // ObjectId headId = git.getRepository().resolve(newHash + "^{tree}");
+    ObjectId headId = git.getRepository().resolve(newHash+"^{tree}");
+    ObjectId oldId = git.getRepository().resolve(newHash + "^^{tree}");
     ObjectReader reader = git.getRepository().newObjectReader();
      
     CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
@@ -50,14 +50,18 @@ public class JGitDiff
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     DiffFormatter df = new DiffFormatter(out);
     df.setRepository(git.getRepository());
- 
+ int count=0;
     for(DiffEntry diff : diffs)
     {
+        count++;
+        System.out.println("DIff: "+diff.toString());
       df.format(diff);
-      diff.getOldId();
+     
+     // diff.getOldId();
       String diffText = out.toString("UTF-8");
       System.out.println(diffText);
       out.reset();
     }
+      System.out.println("Count: "+count);
   }
 }
