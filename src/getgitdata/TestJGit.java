@@ -11,6 +11,7 @@ package getgitdata;
  */
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.ReflogEntry;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -40,19 +42,26 @@ public class TestJGit {
         git = new Git(localRepo);
     }
     public void getCommand(){
+        int count_commit=0;
         try {
             
             git.diff().call();
             git.log().call();
+            git.reflog().call();
+            
            // Git git = new Git(db);
-Iterable<RevCommit> log = git.log().call();
+            Iterable<RevCommit> log = git.log().call();
+            // Collection<ReflogEntry> log = git.reflog().call();
+            count_commit=0;
             while(log.iterator().hasNext()){
-            String str_msg = log.iterator().next().toString();
+                count_commit++;
+            String str_msg = log.iterator().next().toString()+"";
                 System.out.println("GitLog: "+str_msg);
         }
         } catch (GitAPIException ex) {
             Logger.getLogger(TestJGit.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("Total Entry: "+count_commit);
     }
    
     public void testCreate() throws IOException {
