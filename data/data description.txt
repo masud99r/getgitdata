@@ -1,0 +1,14 @@
+<table name="Tomcat">
+<column name="id">1</column>
+    <column name="bug_id">56012</column>
+    <column name="summary">Bug 56012  wrong import statement generation while using the extends attribute of the page directive</column>
+    <column name="description"/>
+    <column name="report_time">2014-01-15 07:30:17</column>
+    <column name="report_timestamp">1389790000</column>
+    <column name="status">resolved fixed</column>
+    <column name="commit">42056be</column>
+    <column name="">1390080000java/org/apache/jasper/compiler/PageInfo.java
+java/org/apache/jasper/compiler/Validator.java</column>
+    <column/>
+    <column name="patch">path for this bug_id here</column>
+ </table>
