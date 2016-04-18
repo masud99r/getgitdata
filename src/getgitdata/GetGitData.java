@@ -52,6 +52,12 @@ public class GetGitData {
        if(s.startsWith("diff --git")||s.startsWith("index")){
        continue;
         }
+       if(s.trim().startsWith("+")==false && s.trim().startsWith("-")==false){
+             continue;
+         }
+        if(s.trim().startsWith("+++")==true || s.trim().startsWith("---")==true){
+             continue;
+         }
          if(count>4){
              cmd_results=cmd_results+"\n"+s;
          }
@@ -74,7 +80,32 @@ public class GetGitData {
       String s = null;
       int count=0;
      while ((s = stdInput.readLine()) != null) {
+         
         // System.out.println(s);
+         if(count>0){
+             cmd_results=cmd_results+"\n"+s;
+         }
+         else{
+             cmd_results=s;
+         }
+         count++;
+       //  System.out.println(count);
+     }
+ }catch(Exception e){
+     e.printStackTrace();
+ }
+ return cmd_results;
+}
+  public String getGitLogs(String batchfile, String project,String date){
+     String cmd_results=null;
+    try{
+     Process proc = Runtime.getRuntime().exec("cmd /c "+batchfile+ " "+project+" "+date);
+     BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+      String s = null;
+      int count=0;
+     while ((s = stdInput.readLine()) != null) {
+         
+         //System.out.println(s);
          if(count>0){
              cmd_results=cmd_results+"\n"+s;
          }

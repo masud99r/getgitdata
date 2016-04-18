@@ -25,9 +25,11 @@ import org.w3c.dom.Element;
 import java.io.File;
 import javax.xml.transform.OutputKeys;
 public class XMLparser {
-    public static String pathtowrite =  "I:/Dev/NetbeanProjects/data/getgitdata/Tomcat_patch.xml";
-    public static String pathtoread =  "I:/Dev/NetbeanProjects/data/getgitdata/Tomcat.xml";
-   public static void main(String[] args){
+    public static String pathtowrite =  "I:/Dev/NetbeanProjects/data/getgitdata/Eclipse_Platform_UI_patch.xml";
+    public static String pathtoread =  "I:/Dev/NetbeanProjects/data/getgitdata/Eclipse_Platform_UI.xml";
+  // public static String pathtoread =  "I:/Dev/NetbeanProjects/data/getgitdata/tom_sample.xml";
+   
+    public static void main(String[] args){
        
        XMLparser xmlp = new XMLparser();
      //  xmlp.writetoXML(pathtowrite);
@@ -116,7 +118,10 @@ public void processXML(String filepath){
             //writie path to xml file
             
              // setting attribute to element
-         
+         if(patch_results==null){
+             System.out.println("Patch is null for bug id : "+column1r);
+             patch_results="";
+         }
          Element table = doc_write.createElement("table");
          rootElement_write.appendChild(table);
          
@@ -191,9 +196,9 @@ public void processXML(String filepath){
          
          Element column9 = doc_write.createElement("column");
          Attr attrType9 = doc_write.createAttribute("name");
-         attrType8.setValue("files");
-         column8.setAttributeNode(attrType9);
-         column8.appendChild(doc_write.createTextNode(column9r));
+         attrType9.setValue("files");
+         column9.setAttributeNode(attrType9);
+         column9.appendChild(doc_write.createTextNode(column9r));
          table.appendChild(column9);
          
          Element column10 = doc_write.createElement("column");
@@ -217,11 +222,14 @@ public void processXML(String filepath){
          transformerFactory.newTransformer();
          transformer.setOutputProperty(OutputKeys.INDENT, "yes");
          transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-         
+        try{ 
          DOMSource source = new DOMSource(doc_write);
-         StreamResult result =
-         new StreamResult(new File(pathtowrite));
+         //   System.out.println("Patch Results are: "+patch_results);
+         StreamResult result = new StreamResult(new File(pathtowrite));
          transformer.transform(source, result);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
          // Output to console for testing
       /*   StreamResult consoleResult =
          new StreamResult(System.out);
