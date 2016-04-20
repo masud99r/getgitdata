@@ -96,7 +96,7 @@ public void processXML(String filepath){
              
              System.out.println("Path for bug_id: "+column1r);
              //runn command to get patch here
-             String commit_ssh = ggd.getPaerntsGitCommand("gitparent.bat",column7r);
+             String commit_ssh = ggd.getPaerntsGitCommand("gitparent.bat","tomcat",column7r);
              String[] commit_parts = commit_ssh.trim().split("\n");
              /*for(int i=0;i<commit_parts.length;i++){
                  System.out.println("part: "+i+ " "+commit_parts[i]);
