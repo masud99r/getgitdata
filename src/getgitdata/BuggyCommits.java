@@ -12,8 +12,11 @@ package getgitdata;
 public class BuggyCommits {
     public static void main(String[] args) {
          GetGitData gitdata = new GetGitData();
-         String git_logs = gitdata.getGitLogs("gitlog.bat", "commons-math","2012-01-01");
-         System.out.println("Logs\n"+git_logs);
+         gitdata.getGitLogs("gitlog.bat", "commons-math","1990-01-01");
+         
+        // gitdata.getGitLogs("gitlog.bat", "commons-math","2012-01-01");
+        // String git_logs = gitdata.getGitLogs("gitlog.bat", "commons-math","2012-01-01");
+        // System.out.println("Logs\n"+git_logs);
     }
    
     
