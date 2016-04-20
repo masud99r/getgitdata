@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  *
@@ -72,10 +74,10 @@ public class GetGitData {
  }
  return cmd_results;
 }
-  public String getPaerntsGitCommand(String batchfile, String commit_sh){
+  public String getPaerntsGitCommand(String batchfile, String project, String commit_sh){
      String cmd_results=null;
     try{
-     Process proc = Runtime.getRuntime().exec("cmd /c "+batchfile+ " "+commit_sh);
+     Process proc = Runtime.getRuntime().exec("cmd /c "+batchfile+ " "+project+" "+commit_sh);
      BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
       String s = null;
       int count=0;
@@ -96,6 +98,41 @@ public class GetGitData {
  }
  return cmd_results;
 }
+  public boolean isBuggyCommit(String commit_msg){
+      String [] msg_tokens = commit_msg.trim().split(" ");
+      HashSet<String> msg_tokens_set = new HashSet<>();
+      for(int i=0;i<msg_tokens.length;i++){
+          msg_tokens_set.add(msg_tokens[i].toLowerCase());
+      }
+      boolean flag =false;
+      boolean bug_flag = false;
+      boolean fix_flag = false;
+      if(msg_tokens_set.contains("bug")||
+         msg_tokens_set.contains("bugs")||
+         msg_tokens_set.contains("buggy")||
+         msg_tokens_set.contains("bugging")||
+         msg_tokens_set.contains("bugid")||
+              msg_tokens_set.contains("issue")||
+              msg_tokens_set.contains("issues")||
+              msg_tokens_set.contains("defect")||
+               msg_tokens_set.contains("defects")||
+              msg_tokens_set.contains("patch")
+        ){
+          bug_flag=true;
+      }
+      if(msg_tokens_set.contains("fix")||
+         msg_tokens_set.contains("fixed")||
+         msg_tokens_set.contains("fixes")||
+         msg_tokens_set.contains("fixing")
+        
+        ){
+          fix_flag=true;
+      }
+    //  flag = fix_flag & bug_flag;
+    //  System.out.println("Flag = "+ flag + " Fix = "+fix_flag+" Bug = "+bug_flag);
+    flag = fix_flag;
+      return flag;
+  }
   public String getGitLogs(String batchfile, String project,String date){
      String cmd_results=null;
     try{
@@ -104,16 +141,23 @@ public class GetGitData {
       String s = null;
       int count=0;
      while ((s = stdInput.readLine()) != null) {
+         boolean isBug = isBuggyCommit(s);
+         String commit_message="";
+         String sha="";
+         if(isBug){
+            //System.out.println(s);
+            String[] com_msg = s.trim().split(" ");
+            sha = com_msg[0];
+            commit_message=com_msg[1];
+            for(int i=2;i<com_msg.length;i++){
+                commit_message =commit_message+ " "+com_msg[i];
+            }
+            commit_message = commit_message.trim();
+            System.out.println(sha+"="+commit_message);
+            String parentinfo = getPaerntsGitCommand("gitparent.bat","commons-math", sha);
+             System.out.println("Parent pair:"+parentinfo);
+         }
          
-         //System.out.println(s);
-         if(count>0){
-             cmd_results=cmd_results+"\n"+s;
-         }
-         else{
-             cmd_results=s;
-         }
-         count++;
-       //  System.out.println(count);
      }
  }catch(Exception e){
      e.printStackTrace();
