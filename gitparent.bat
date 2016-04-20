@@ -1,2 +1,2 @@
-cd eclipse_platform_ui
-git rev-list --parents -n 1 %1
+cd %1
+git rev-list --parents -n 1 %2
