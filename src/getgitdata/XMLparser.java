@@ -98,10 +98,6 @@ public void processXML(String filepath){
              //runn command to get patch here
              String commit_ssh = ggd.getPaerntsGitCommand("gitparent.bat","tomcat",column7r);
              String[] commit_parts = commit_ssh.trim().split("\n");
-             /*for(int i=0;i<commit_parts.length;i++){
-                 System.out.println("part: "+i+ " "+commit_parts[i]);
-             }
-            System.out.println("Size: "+commit_parts.length);*/
              if(commit_parts.length<4){
                  System.out.println("Cannot find parent commit for this bug id: "+column1r);
                  continue;//skip ambiguous bug reported commit
