@@ -1,2 +1,2 @@
-cd eclipse_platform_ui
-git diff --function-context --ignore-space-change  --ignore-all-space --ignore-blank-lines %1 %2
+cd %1
+git diff --function-context --ignore-space-change  --ignore-all-space --ignore-blank-lines %2 %3
