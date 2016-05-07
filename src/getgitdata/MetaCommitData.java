@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class MetaCommitData {
     private String SHA;
     private String Commit_message;
-    private boolean isFix;
-    private boolean isBug;
+    //private boolean isFix;
+    private boolean bugFix;
     private String FileChanged;
     private String Author_name;
     private String Commit_date;
@@ -23,17 +23,19 @@ public class MetaCommitData {
     private int Num_added_line;
     private ArrayList<Integer> Lines_deleted;
     private ArrayList<Integer> Lines_added;
+    private ArrayList<String> Code_Lines_deleted;
+    private ArrayList<String> Code_Lines_added;
     void setSHA(String sha){
         this.SHA=sha;
     }
     void setCommit_message(String com_msg){
         this.Commit_message=com_msg;
     }
-    void setisFix(boolean fix){
+    /*void setisFix(boolean fix){
         this.isFix=fix;
-    }
-    void setisBug(boolean bug){
-        this.isBug=bug;
+    }*/
+    void setbugFix(boolean bug){
+        this.bugFix=bug;
     }
     void setFileChanged(String filename){
         this.FileChanged=filename;
@@ -56,18 +58,24 @@ public class MetaCommitData {
     void setLines_added(ArrayList<Integer> added_lines){
         this.Lines_added=added_lines;
     }
+    void setCode_Lines_deleted(ArrayList<String>code_del_lines){
+        this.Code_Lines_deleted=code_del_lines;
+    }
+    void setCode_Lines_added(ArrayList<String> code_added_lines){
+        this.Code_Lines_added=code_added_lines;
+    }
     
-    String getSHA(String sha){
-    	return this.SHA=sha;
+    String getSHA(){
+    	return this.SHA;
     }
     String getCommit_message(){
         return this.Commit_message;
     }
-    boolean getisFix(){
+    /*boolean getisFix(){
         return this.isFix;
-    }
-    boolean getisBug(){
-        return this.isBug;
+    }*/
+    boolean getbugFix(){
+        return this.bugFix;
     }
     String getFileChanged(){
         return this.FileChanged;
@@ -90,20 +98,28 @@ public class MetaCommitData {
     ArrayList<Integer> getLines_added(){
         return this.Lines_added;
     }
+    ArrayList<String> getCode_Lines_deleted(){
+        return this.Code_Lines_deleted;
+    }
+    ArrayList<String> getCode_Lines_added(){
+        return this.Code_Lines_added;
+    }
+    
     @Override
     public String toString(){
         return "*****************************\n"+
         	"SHA: "+this.SHA+"\n"+
         	"Commit_message: "+this.Commit_message+"\n"+
-        	"isFix: "+this.isFix+"\n"+
-        	"isBug: "+this.isBug+"\n"+
+        	//"isFix: "+this.isFix+"\n"+
+        	"bugFix: "+this.bugFix+"\n"+
         	"FileChanged: "+this.FileChanged+"\n"+
         	"Author_name: "+this.Author_name+"\n"+
         	"Commit_date: "+this.Commit_date+"\n"+
         	"Num_deleted_line: "+this.Num_deleted_line+"\n"+
         	"Num_added_line: "+this.Num_added_line+"\n"+
         	"Lines_deleted: "+this.Lines_deleted.toString()+"\n"+
-        	"Lines_added: "+this.Lines_added.toString()+"\n"+
+                "Code_Lines_deleted: "+this.Code_Lines_deleted.toString()+"\n"+
+        	"Code_Lines_added: "+this.Code_Lines_added.toString()+"\n"+
         	"**********************************\n";
 
     }
