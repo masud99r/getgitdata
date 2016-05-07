@@ -5,8 +5,11 @@
  */
 package getgitdata;
 
+import com.csvreader.CsvWriter;
+import static getgitdata.BuggyCommits.rootpath;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.HashSet;
  */
 public class GetGitData {
   private String language_extension=".java";
+  public static String rootpath = "I:/Dev/NetbeanProjects/data/getgitdata/";
+    
     /**
      * @param args the command line arguments
      * @throws java.io.IOException
@@ -92,6 +97,7 @@ public String getPatchGitCommand(String project, String commit_sh1, String commi
              firstCount = false;
          }
          else{
+             //System.out.println("S="+s);
              cmd_results=cmd_results+"\n"+s;
          }
          
@@ -251,6 +257,7 @@ public String getPatchGitCommand(String project, String commit_sh1, String commi
 public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String project,String date){
     ArrayList<MetaCommitData> metaComData_list = new ArrayList<>();
     String cmd_results=null;
+    int commit_entry_count=0;
     try{
      Process proc = Runtime.getRuntime().exec("cmd /c "+batchfile+ " "+project+" "+date);
      BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -261,9 +268,9 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
       s = stdInput.readLine();
       s = stdInput.readLine();
      while ((s = stdInput.readLine()) != null) {
-         MetaCommitData metadata = new MetaCommitData();
+        
          boolean isBug = isBuggyCommit(s);
-         boolean isFix = !isBug;
+         //boolean isFix = !isBug;
          String commit_message="";
          String sha="";
       
@@ -275,22 +282,25 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
             }
             commit_message = commit_message.trim();
             
-            metadata.setSHA(sha);
-            metadata.setCommit_message(commit_message);
-            metadata.setisBug(isBug);
-            metadata.setisFix(isFix);
+            
             
             //get author and date
             String gitshow_result = getGitShowCommand(project, sha);
             String[] gitshow_lines = gitshow_result.split("\n");
             String author_name= "";
             String commit_date ="";
-            if(gitshow_lines.length>=6){
-                author_name = gitshow_lines[4].trim().split("Author:")[0].trim();
-                commit_date = gitshow_lines[5].trim().split("Date:")[0].trim();
+            if(gitshow_lines.length>6){
+                String[] author_parts = gitshow_lines[5].trim().split("Author:");
+                if(author_parts.length>1){
+                    author_name= author_parts[1].trim();
+                }
+                String[] commit_date_parts = gitshow_lines[6].trim().split("Date:");
+                if(commit_date_parts.length>1){
+                    commit_date = commit_date_parts[1].trim();
+                }
+                
             }
-            metadata.setAuthor_name(author_name);
-            metadata.setCommit_date(commit_date);
+            
             
             //System.out.println("git show: "+gitshow_result);
            // System.out.println(sha+" "+commit_message);
@@ -312,35 +322,115 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
             
             ArrayList<String> patch_results = getPatchGitCommand_linenumber(project, commit_sh1,commit_sh2);
             //System.out.println("Patch:*********** \n"+patch_results.toString());
-            System.out.println("Number of file changed: "+patch_results.size());
+            //System.out.println("Number of file changed: "+patch_results.size());
             for(String processFile:patch_results){
                 String[] result_lines = processFile.split("\n");
                 int count_delete_line=0;
                 int count_added_line=0;
                 ArrayList<Integer>del_lines = new ArrayList<>();
                 ArrayList<Integer>added_lines = new ArrayList<>();
+                
+                ArrayList<String>code_del_lines = new ArrayList<>();
+                ArrayList<String>code_added_lines = new ArrayList<>();
+                
                 if(result_lines.length>0){
+                    //System.out.println("Line tested="+result_lines[0]);
+                    //System.out.println("Language="+language_extension);
                     if(result_lines[0].trim().endsWith(language_extension)){//specific file
-                        for(int i=1;i<result_lines.length;i++){
+                        for(int i=1;i<result_lines.length;i++){//skip different line
+                            //testing
+                            
+                            //System.out.println("Line:"+result_lines[i]);
+                            if(result_lines[i].startsWith("-")&&result_lines[i].startsWith("---")!=true){
+                                String codeDel = result_lines[i].replaceFirst("-", "");
+                                code_del_lines.add(codeDel);
+                            }
+                            if(result_lines[i].startsWith("+")&& result_lines[i].startsWith("+++")!=true){
+                                String codeAdd = result_lines[i].replaceFirst("\\+", "");
+                                code_added_lines.add(codeAdd);
+                            }
+                            
                             if(result_lines[i].trim().startsWith("@@")){
+                                
                                 String[] add_del_nums = result_lines[i].trim().split("@@");
                                 if(add_del_nums.length>0){
-                                    String middle_num = add_del_nums[0].trim();
+                                    //System.out.println("add_del_nums[1]="+add_del_nums[1]);
+                                    String middle_num = add_del_nums[1].trim();
                                     String[] middle_parts = middle_num.split(" ");
+                                     //System.out.println("middle_parts="+middle_parts.length);
                                     if(middle_parts.length==2){
                                         if(middle_parts[0].startsWith("-")){ //deleted lines
                                             String textpart = middle_parts[0].replaceAll("-", "");
-                                            String[] textpats = textpart.split(",");
-                                            if(textpats.length==0 || textpats.length==1){
+                                            String[] textparts = textpart.split(",");
+                                            if(textparts.length==0 || textparts.length==1){
                                                 //to do
+                                                int line_no = Integer.parseInt(textparts[0].trim());
+                                                count_delete_line++; //just one single line changed
+                                                del_lines.add(line_no);
+                                            }
+                                            else if(textparts.length==2){
+                                                int startFrom =  Integer.parseInt(textparts[0].trim());
+                                                int count_next = Integer.parseInt(textparts[1].trim());
+                                                count_delete_line +=count_next;
+                                                for(int iline=0;iline<count_next;iline++){//add to arraylist
+                                                    del_lines.add(startFrom);
+                                                    startFrom++;
+                                                }
                                             }
                                         }
+                                        if(middle_parts[1].startsWith("+")){ //deleted lines
+                                            String textpart = middle_parts[1].replaceAll("\\+", "");
+                                            String[] textparts = textpart.split(",");
+                                            if(textparts.length==0 || textparts.length==1){
+                                                //to do
+                                                int line_no = Integer.parseInt(textparts[0].trim());
+                                                count_added_line++; //just one single line changed
+                                                added_lines.add(line_no);
+                                            }
+                                            else if(textparts.length==2){
+                                                int startFrom =  Integer.parseInt(textparts[0].trim());
+                                                int count_next = Integer.parseInt(textparts[1].trim());
+                                                count_added_line +=count_next;
+                                                for(int iline=0;iline<count_next;iline++){//add to arraylist
+                                                    added_lines.add(startFrom);
+                                                    startFrom++;
+                                                }
+                                            }
+                                        }
+                                        //if same for + lines
                                     }
                                 }
                             }
+                            
+                        }
+                      String file_changed = result_lines[0].trim().split(" b")[1];//space b will give you the file name from source
+
+                        MetaCommitData metadata = new MetaCommitData();
+                        metadata.setSHA(sha);
+                        metadata.setCommit_message(commit_message);
+                        metadata.setbugFix(isBug);
+                        //metadata.setisFix(isFix);
+                        metadata.setAuthor_name(author_name);
+                        metadata.setCommit_date(commit_date);
+
+                        metadata.setFileChanged(file_changed);
+                        metadata.setNum_added_line(count_added_line);
+                        metadata.setNum_deleted_line(count_delete_line);
+                        metadata.setLines_added(added_lines);
+                        metadata.setLines_deleted(del_lines);
+                        metadata.setCode_Lines_added(code_added_lines);
+                        metadata.setCode_Lines_deleted(code_del_lines);
+                        //System.out.println("Metadata entry: ******************");
+                        //System.out.println(metadata);
+                       // metaComData_list.add(metadata);//add to the link  
+                       writeMetaDataTocvs(metadata,"meta_commit_data_context");//write to cvs file
+                        commit_entry_count++;
+                        if(commit_entry_count%1000==0){
+                            System.out.println("Processed "+commit_entry_count+" commit entry");
                         }
                     }
                 }
+                
             }
             //String parentinfo = getPaerntsGitCommand("gitparent.bat","commons-math", sha);
          //    System.out.println("Parent pair:"+parentinfo);
@@ -352,4 +442,57 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
  }
  return metaComData_list;
 }
+
+private void writeMetaDataTocvs(MetaCommitData meta_data, String filename){
+    String outputFile = rootpath+filename+".cvs";
+    //System.out.println("Total Entry = "+commit_data.size());
+    boolean alreadyExists = new File(outputFile).exists();
+    try {
+    // use FileWriter constructor that specifies open for appending
+    CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
+    // if the file didn't already exist then we need to write out the header line
+    if (!alreadyExists)
+    {
+        csvOutput.write("SHA");
+        csvOutput.write("Commit_message");
+        //csvOutput.write("isFix");
+        csvOutput.write("BugFix");
+        csvOutput.write("FileChanged");
+        csvOutput.write("Author_name");
+        csvOutput.write("Commit_date");
+        csvOutput.write("Num_deleted_line");
+        
+        csvOutput.write("Num_added_line");
+        csvOutput.write("Array of Lines_deleted");
+        csvOutput.write("Array of Lines_added");
+        csvOutput.write("Array of Code Lines_deleted");
+        csvOutput.write("Array of Code Lines_added");
+        csvOutput.endRecord();
+    }
+    // else assume that the file already has the correct header line
+   // for(MetaCommitData mdata:commit_data){
+        csvOutput.write(meta_data.getSHA());
+        csvOutput.write(meta_data.getCommit_message());
+        //csvOutput.write(mdata.getisFix()+"");
+        csvOutput.write(meta_data.getbugFix()+"");
+        csvOutput.write(meta_data.getFileChanged());
+        csvOutput.write(meta_data.getAuthor_name());
+        csvOutput.write(meta_data.getCommit_date());
+        csvOutput.write(meta_data.getNum_deleted_line()+"");
+        csvOutput.write(meta_data.getNum_added_line()+"");
+        csvOutput.write(meta_data.getLines_deleted().toString());
+        csvOutput.write(meta_data.getLines_added().toString());
+        
+        csvOutput.write(meta_data.getCode_Lines_deleted().toString());
+        csvOutput.write(meta_data.getCode_Lines_added().toString());
+        csvOutput.endRecord();
+    //}
+    
+    csvOutput.close();
+    } catch (IOException e) {
+            e.printStackTrace();
+    }
+    //System.out.println("Write succesfully cvs");
+}
+
 }
