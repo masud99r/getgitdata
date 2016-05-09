@@ -9,6 +9,7 @@ import com.csvreader.CsvWriter;
 import static getgitdata.BuggyCommits.rootpath;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -70,6 +71,45 @@ public String getPatchGitCommand(String project, String commit_sh1, String commi
      e.printStackTrace();
  }
  return cmd_results;
+}
+public ArrayList<String> getNewOldFile(String project, String commit_sh1, String commit_sh2){
+    String cmd_results=null;
+    ArrayList<String> changedFile_list = new ArrayList<>();
+    try{
+     Process proc = Runtime.getRuntime().exec("cmd /c "+"git_dif_context.bat "+project+ " "+commit_sh1+" "+commit_sh2);
+     BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+      String s = null;
+      s = stdInput.readLine();
+              s = stdInput.readLine();
+                      s = stdInput.readLine();
+                              s = stdInput.readLine();//skipping first few unnecessary lines
+       // System.out.println("Start first: "+s);
+        boolean firstCount=true;
+        while ((s = stdInput.readLine()) != null) {
+         if(s.trim().startsWith("diff")){
+             if(!firstCount){
+                 changedFile_list.add(cmd_results);
+                 firstCount=true;
+             }
+             cmd_results="";//start over
+         }
+         if(firstCount){
+              cmd_results=s;
+             firstCount = false;
+         }
+         else{
+             //System.out.println("S="+s);
+             cmd_results=cmd_results+"\n"+s;
+         }
+         
+     }
+    if(cmd_results.isEmpty()==false){
+        changedFile_list.add(cmd_results);
+    }
+ }catch(Exception e){
+     e.printStackTrace();
+ }
+ return changedFile_list;
 }
    public ArrayList<String> getPatchGitCommand_linenumber(String project, String commit_sh1, String commit_sh2){
      String cmd_results=null;
@@ -319,8 +359,8 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
             /*must do it in reverse way to get proper commit order*/
             String commit_sh2 = two_commits[0].trim();//parent commit sha
             String commit_sh1 = two_commits[1].trim();//child/current commit sha
-            
-            ArrayList<String> patch_results = getPatchGitCommand_linenumber(project, commit_sh1,commit_sh2);
+            ArrayList<String> patch_results = new ArrayList<>();
+            //ArrayList<String> patch_results = getPatchGitCommand_linenumber(project, commit_sh1,commit_sh2);
             //System.out.println("Patch:*********** \n"+patch_results.toString());
             //System.out.println("Number of file changed: "+patch_results.size());
             for(String processFile:patch_results){
@@ -432,6 +472,86 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
                 }
                 
             }
+            ArrayList<String> diff_result = getNewOldFile(project, commit_sh1,commit_sh2);
+            for(String diff_elem:diff_result){
+                //new file
+                
+                
+                //System.out.println("Each elem="+diff_elem);
+                String[] result_lines = diff_elem.split("\n");
+                if(result_lines.length>0){
+                    //System.out.println("Line tested="+result_lines[0]);
+                    //System.out.println("Language="+language_extension);
+                    if(result_lines[0].trim().endsWith(language_extension)){//specific file
+                        String file_name=sha+"_"+getFileName(result_lines[0].trim());
+                        String file_path_buggy = "I:/Dev/NetbeanProjects/data/getgitdata/Projects_patch/commons-math/bug/buggy_"+file_name+".txt";
+                        String file_path_fixed = "I:/Dev/NetbeanProjects/data/getgitdata/Projects_patch/commons-math/fix/fixed_"+file_name+".txt";
+                        writeLine("",file_path_buggy);
+                        writeLine("",file_path_fixed);
+                        if(result_lines.length>=3){
+                            String atLine = result_lines[4].trim();//@ ......@ code line here
+                            String[] at_parts = atLine.split("@@");
+                            /*for(int i=0;i<at_parts.length;i++){
+                                System.out.println(i+" "+at_parts[i]);
+                            }*/
+                            if(at_parts.length==3){
+                                String firstLine = at_parts[2].trim();
+                                if(firstLine.startsWith("-")){
+                                    firstLine = firstLine.replaceFirst("-", "");
+                                    writeLine(firstLine, file_path_buggy);
+                                }
+                                else if(firstLine.startsWith("+")){
+                                    firstLine = firstLine.replaceFirst("\\+", "");
+                                    writeLine(firstLine, file_path_fixed);
+                                }
+                                else{
+                                     writeLine(firstLine, file_path_buggy);
+                                     writeLine(firstLine, file_path_fixed);
+                                }
+                                
+                            }
+                        }
+                        for(int i=5;i<result_lines.length;i++){//skip diffe
+                            
+                            String cline = result_lines[i];
+                            if(cline.startsWith("@@")){//need special treatment
+                                String atLine = cline.trim();//@ ......@ code line here
+                            String[] at_parts = atLine.split("@@");
+                           
+                            if(at_parts.length==3){
+                                String firstLine = at_parts[2].trim();
+                                if(firstLine.startsWith("-")){
+                                    firstLine = firstLine.replaceFirst("-", "");
+                                    writeLine(firstLine, file_path_buggy);
+                                }
+                                else if(firstLine.startsWith("+")){
+                                    firstLine = firstLine.replaceFirst("\\+", "");
+                                    writeLine(firstLine, file_path_fixed);
+                                }
+                                else{
+                                     writeLine(firstLine, file_path_buggy);
+                                     writeLine(firstLine, file_path_fixed);
+                                }
+                                
+                            }
+                            }
+                               else if(cline.startsWith("-")){
+                                    cline = cline.replaceFirst("-", "");
+                                    writeLine(cline, file_path_buggy);
+                                }
+                                else if(cline.startsWith("+")){
+                                    cline = cline.replaceFirst("\\+", "");
+                                    writeLine(cline, file_path_fixed);
+                                }
+                                else{
+                                     writeLine(cline, file_path_buggy);
+                                     writeLine(cline, file_path_fixed);
+                                }
+                        }
+                    }
+                }
+            }
+            
             //String parentinfo = getPaerntsGitCommand("gitparent.bat","commons-math", sha);
          //    System.out.println("Parent pair:"+parentinfo);
         // }
@@ -442,7 +562,33 @@ public ArrayList<MetaCommitData> getGitCommitsData(String batchfile, String proj
  }
  return metaComData_list;
 }
-
+private void writeLine(String text, String filePathName){
+   FileWriter fw=null;
+    try {
+        fw = new FileWriter(filePathName,true);
+        fw.write(text+"\n");
+        
+    }catch(Exception e){
+        e.printStackTrace();
+    }
+   finally{
+        
+        if (fw != null)
+            try{     
+                fw.close();
+            } catch (Exception e) {
+             e.printStackTrace();
+            }   
+   }
+}
+private String getFileName(String str){
+    String name=null;
+    String [] name_parts = str.split("/");
+    if(name_parts.length>0){
+        name = name_parts[name_parts.length-1];
+    }
+    return name;
+}
 private void writeMetaDataTocvs(MetaCommitData meta_data, String filename){
     String outputFile = rootpath+filename+".cvs";
     //System.out.println("Total Entry = "+commit_data.size());
