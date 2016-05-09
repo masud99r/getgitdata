@@ -26,7 +26,7 @@ public class BuggyCommits {
          ArrayList<String> st = new ArrayList<>();
          ArrayList<MetaCommitData> mcd =new ArrayList<>();
         
-         mcd = gitdata.getGitCommitsData("gitlog.bat", "commons-math","2015-01-01");
+         mcd = gitdata.getGitCommitsData("gitlog.bat", "commons-math","2016-01-01");
           //bc.writeTocvs(mcd,"meta_commit_data_context");
          /*for(MetaCommitData m:mcd){
              System.out.println("Entry: "+m);
