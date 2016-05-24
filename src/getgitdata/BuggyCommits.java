@@ -25,8 +25,12 @@ public class BuggyCommits {
          //gitdata.getGitLogs("gitlog.bat", "commons-math","1990-01-01");
          ArrayList<String> st = new ArrayList<>();
          ArrayList<MetaCommitData> mcd =new ArrayList<>();
-        
-         mcd = gitdata.getGitCommitsData("gitlog.bat", "commons-math","2016-01-01");
+        gitdata.processGitCommitsData("commons-math",rootpath+"gitlogs/commons-math/git_log.txt");
+     //  gitdata.gitBlameSHA("commons-math", "gitblame_sha.bat","195", "e0b2c86c8754312d1e89307fbf84e6efbfa9fe0b", "src/test/java/org/apache/commons/math4/PerfTestUtils.java");
+      // gitdata.getGitCommitUniform("git_dif_patch_uniform.bat","commons-math", "7c31eb6634d55db044b6c4297d38550a9b248046", "df46ed5edde4aea856cb16b8bc4ab791fef206ef");
+     //ArrayList<Integer>al =  gitdata.getDeletedLinesBlame("commons-math", "src/main/java/org/apache/commons/math4/random/Well1024a.java", "7c31eb6634d55db044b6c4297d38550a9b248046", "df46ed5edde4aea856cb16b8bc4ab791fef206ef");
+    //    System.out.println("List="+al.toString());
+// mcd = gitdata.getGitCommitsData("commons-math",rootpath+"gitlogs/commons-math/git_log.txt");
           //bc.writeTocvs(mcd,"meta_commit_data_context");
          /*for(MetaCommitData m:mcd){
              System.out.println("Entry: "+m);
@@ -35,56 +39,5 @@ public class BuggyCommits {
         // String git_logs = gitdata.getGitLogs("gitlog.bat", "commons-math","2012-01-01");
         // System.out.println("Logs\n"+git_logs);
     }
-    
-    private void writeTocvs(ArrayList<MetaCommitData> commit_data, String filename){
-    String outputFile = rootpath+filename+".cvs";
-    System.out.println("Total Entry = "+commit_data.size());
-    boolean alreadyExists = new File(outputFile).exists();
-    try {
-    // use FileWriter constructor that specifies open for appending
-    CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
-    // if the file didn't already exist then we need to write out the header line
-    if (!alreadyExists)
-    {
-        csvOutput.write("SHA");
-        csvOutput.write("Commit_message");
-        //csvOutput.write("isFix");
-        csvOutput.write("BugFix");
-        csvOutput.write("FileChanged");
-        csvOutput.write("Author_name");
-        csvOutput.write("Commit_date");
-        csvOutput.write("Num_deleted_line");
-        
-        csvOutput.write("Num_added_line");
-        csvOutput.write("Array of Lines_deleted");
-        csvOutput.write("Array of Lines_added");
-        csvOutput.write("Array of Code Lines_deleted");
-        csvOutput.write("Array of Code Lines_added");
-        csvOutput.endRecord();
-    }
-    // else assume that the file already has the correct header line
-    for(MetaCommitData mdata:commit_data){
-        csvOutput.write(mdata.getSHA());
-        csvOutput.write(mdata.getCommit_message());
-        //csvOutput.write(mdata.getisFix()+"");
-        csvOutput.write(mdata.getbugFix()+"");
-        csvOutput.write(mdata.getFileChanged());
-        csvOutput.write(mdata.getAuthor_name());
-        csvOutput.write(mdata.getCommit_date());
-        csvOutput.write(mdata.getNum_deleted_line()+"");
-        csvOutput.write(mdata.getNum_added_line()+"");
-        csvOutput.write(mdata.getLines_deleted().toString());
-        csvOutput.write(mdata.getLines_added().toString());
-        
-        csvOutput.write(mdata.getCode_Lines_deleted().toString());
-        csvOutput.write(mdata.getCode_Lines_added().toString());
-        csvOutput.endRecord();
-    }
-    
-    csvOutput.close();
-    } catch (IOException e) {
-            e.printStackTrace();
-    }
-    System.out.println("Write succesfully cvs");
-}
+  
 }

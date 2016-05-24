@@ -12,19 +12,26 @@ import java.util.ArrayList;
  * @author Masud
  */
 public class MetaCommitData {
+    private String ProjectName;
     private String SHA;
     private String Commit_message;
-    //private boolean isFix;
     private boolean bugFix;
-    private String FileChanged;
+    private String ChangedFileName;
     private String Author_name;
-    private String Commit_date;
+    private String Author_date;
     private int Num_deleted_line;
     private int Num_added_line;
     private ArrayList<Integer> Lines_deleted;
     private ArrayList<Integer> Lines_added;
-    private ArrayList<String> Code_Lines_deleted;
-    private ArrayList<String> Code_Lines_added;
+    private String BuggyFilePath;
+    private String FixedFilePath;
+    private ArrayList<String> buggyCommitSHA;
+    private ArrayList<String> buggyCommitSHA_file;
+    private ArrayList<String> buggyCommitSHA_line;
+    
+    void setProjectName(String project){
+        this.ProjectName=project;
+    }
     void setSHA(String sha){
         this.SHA=sha;
     }
@@ -37,14 +44,14 @@ public class MetaCommitData {
     void setbugFix(boolean bug){
         this.bugFix=bug;
     }
-    void setFileChanged(String filename){
-        this.FileChanged=filename;
+    void setChangedFileName(String filename){
+        this.ChangedFileName=filename;
     }
     void setAuthor_name(String name){
         this.Author_name=name;
     }
-    void setCommit_date(String cdate){
-        this.Commit_date=cdate;
+    void setAuthor_date(String cdate){
+        this.Author_date=cdate;
     }
     void setNum_deleted_line(int nd_lines){
         this.Num_deleted_line=nd_lines;
@@ -58,13 +65,24 @@ public class MetaCommitData {
     void setLines_added(ArrayList<Integer> added_lines){
         this.Lines_added=added_lines;
     }
-    void setCode_Lines_deleted(ArrayList<String>code_del_lines){
-        this.Code_Lines_deleted=code_del_lines;
+    void setBuggyFilePath(String FilePath){
+        this.BuggyFilePath=FilePath;
     }
-    void setCode_Lines_added(ArrayList<String> code_added_lines){
-        this.Code_Lines_added=code_added_lines;
+    void setFixedFilePath(String FilePath){
+        this.FixedFilePath=FilePath;
     }
-    
+    void setbuggyCommitSHA(ArrayList<String> sha_list){
+        buggyCommitSHA=sha_list;
+    }
+    void setbuggyCommitSHA_file(ArrayList<String> sha_list_file){
+        buggyCommitSHA_file=sha_list_file;
+    }
+    void setbuggyCommitSHA_line(ArrayList<String> sha_list_line){
+        buggyCommitSHA_line=sha_list_line;
+    }
+    String getProjectName(){
+    	return this.ProjectName;
+    }
     String getSHA(){
     	return this.SHA;
     }
@@ -77,14 +95,14 @@ public class MetaCommitData {
     boolean getbugFix(){
         return this.bugFix;
     }
-    String getFileChanged(){
-        return this.FileChanged;
+    String getChangedFileName(){
+        return this.ChangedFileName;
     }
     String getAuthor_name(){
         return this.Author_name;
     }
-    String getCommit_date(){
-        return this.Commit_date;
+    String getAuthor_date(){
+        return this.Author_date;
     }
     int getNum_deleted_line(){
         return this.Num_deleted_line;
@@ -98,11 +116,20 @@ public class MetaCommitData {
     ArrayList<Integer> getLines_added(){
         return this.Lines_added;
     }
-    ArrayList<String> getCode_Lines_deleted(){
-        return this.Code_Lines_deleted;
+    String getBuggyFilePath(){
+        return this.BuggyFilePath;
     }
-    ArrayList<String> getCode_Lines_added(){
-        return this.Code_Lines_added;
+    String getFixedFilePath(){
+        return this.FixedFilePath;
+    }
+    ArrayList<String> getbuggyCommitSHA(){
+        return buggyCommitSHA;
+    }
+    ArrayList<String> getbuggyCommitSHA_file(){
+        return buggyCommitSHA_file;
+    }
+    ArrayList<String> getbuggyCommitSHA_line(){
+        return buggyCommitSHA_line;
     }
     
     @Override
@@ -112,14 +139,16 @@ public class MetaCommitData {
         	"Commit_message: "+this.Commit_message+"\n"+
         	//"isFix: "+this.isFix+"\n"+
         	"bugFix: "+this.bugFix+"\n"+
-        	"FileChanged: "+this.FileChanged+"\n"+
+        	"ChangedFileName: "+this.ChangedFileName+"\n"+
         	"Author_name: "+this.Author_name+"\n"+
-        	"Commit_date: "+this.Commit_date+"\n"+
+        	"Author_date: "+this.Author_date+"\n"+
         	"Num_deleted_line: "+this.Num_deleted_line+"\n"+
         	"Num_added_line: "+this.Num_added_line+"\n"+
-        	"Lines_deleted: "+this.Lines_deleted.toString()+"\n"+
-                "Code_Lines_deleted: "+this.Code_Lines_deleted.toString()+"\n"+
-        	"Code_Lines_added: "+this.Code_Lines_added.toString()+"\n"+
+                "BuggyFilePath: "+this.BuggyFilePath+"\n"+
+                "FixedFilePath: "+this.FixedFilePath+"\n"+
+                "buggyCommitSHA: "+this.buggyCommitSHA+"\n"+
+                "buggyCommitSHA_file: "+this.buggyCommitSHA_file+"\n"+
+                "buggyCommitSHA_line: "+this.buggyCommitSHA_line+"\n"+
         	"**********************************\n";
 
     }
